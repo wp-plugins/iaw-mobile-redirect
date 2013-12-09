@@ -1,7 +1,7 @@
 === IAW Mobile Redirect ===
 Contributors: jasonlap64
 Donate link: NA
-Tags: mobile, redirect, iaw
+Tags: mobile, redirect, iaw, mobile redirect
 Requires at least: 3.4
 Tested up to: 3.5
 Stable tag: 1.0.0
@@ -11,7 +11,7 @@ This plugin allows you to put in a mobile web app to redirect mobile traffic to.
 
 == Description ==
 
-A mobile redirect plugin for those who use a mobile web app for their mobile content.  Simply put in the Mobile App Code, Check the Enable Redirect and you are ready to send users to your mobile-only content.
+A mobile redirect plugin for those who use a mobile web app hosted on 1tap.mobi for their mobile content.  This plugin adds the correct link to the javascript on www.1tap.mobi/include/js/external/ to the header of each page.  Simply put in the Mobile App Code, Check the Enable Redirect and you are ready to send users to your mobile-only content.
 
 == Installation ==
 
