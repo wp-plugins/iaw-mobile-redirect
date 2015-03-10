@@ -3,11 +3,11 @@
 Plugin Name: IAW Mobile Redirect
 Description: Select a mobile web app to point mobile users to
 Author: LaPorte Consulting, LLC
-Version: 1.0.0
+Version: 2.0.0
 Author URI: http://laporteconsult.com/
 */
 
-/*	Copyright 2013 LaPorte Consulting, LLC (email : info@laporteconsult.com)
+/*	Copyright 2015 LaPorte Consulting, LLC (email : info@laporteconsult.com)
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License, version 2, as
@@ -27,7 +27,7 @@ Author URI: http://laporteconsult.com/
 $ios_mobile_redirect = new IAW_Mobile_Redirect();
 
 register_uninstall_hook( __FILE__, 'uninstall_iaw_mobile_redirect' );
-function uninstall_mobile_redirect() {
+function uninstall_iaw_mobile_redirect() {
 	delete_option( 'iawmobileredirectapp' );
 	delete_option( 'iawmobileredirecttoggle' );
 	delete_option( 'iawmobileredirecttablet' );
@@ -39,6 +39,8 @@ class IAW_Mobile_Redirect{
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
 		add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
 		add_action( 'wp_head', array( &$this, 'iaw_mobile_redirect' ), 1 );
+		add_action( 'wp_footer', array( &$this, 'iaw_add_footer_link' ), 1);
+        remove_filter( 'wp_footer', 'strip_tags' );
 		if ( get_option( 'iawmobileredirecttoggle' ) == 'true' )
 			update_option( 'iawmobileredirecttoggle', true );
 	}
@@ -63,7 +65,6 @@ class IAW_Mobile_Redirect{
 		if ( isset( $_POST['mobileapp'] ) ) {
 			update_option( 'iawmobileredirectapp', $_POST['mobileapp'] );
 			update_option( 'iawmobileredirecttoggle', isset( $_POST['mobiletoggle'] ) ? true : false );
-
 			update_option( 'iawmobileredirecttablet', isset( $_POST['mobileredirecttablet'] ) );
 
 			echo '<div class="updated"><p>' . __( 'Updated', 'iaw-mobile-redirect' ) . '</p></div>';
@@ -114,8 +115,39 @@ class IAW_Mobile_Redirect{
 		// empty url
 		if ( empty( $app_code ) )
 			return;
+
+		if ( strpos($app_code,'/') ) {
+			$slashpos = strpos($app_code,'/');
+			$full_code = $app_code;
+			$app_code =  substr($full_code, $slashpos + 1);
+			$code_path = substr($full_code, 0, $slashpos);
+		} else {
+			$code_path = 'www.1tap.mobi';
+		}
+
 ?>
-<script language="javascript">var mobileId = "<?php echo $app_code ?>";</script> <script type="text/javascript" src="http://www.1tap.mobi/include/js/external/<?php echo $script_name ?>.js"></script>
+<script language="javascript">var mobileId = "<?php echo $app_code ?>";</script> <script type="text/javascript" src="http://<?php echo $code_path ?>/include/js/external/<?php echo $script_name ?>.js"></script> 
+
+
 <?	}
 
+	function iaw_add_footer_link() {
+		// not enabled
+		if ( ! get_option('iawmobileredirecttoggle') )
+			return;
+
+		$app_code = get_option('iawmobileredirectapp', '');
+		// empty url
+		if ( empty( $app_code ) )
+			return;
+			
+		if ( !strpos($app_code,'/') ) {
+			$app_code = 'http://www.1tap.mobi/' . $app_code ;
+		}
+		
+		if (isset($_COOKIE['mobile_dontredirect']) && $_COOKIE['mobile_dontredirect'] == true){
+			echo '<div align="center"> <span style="z-index: 10; color: rgba(0,0,0,1); background-color: rgba(255,255,255,1); border-radius: 5px; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 10px;"><a href="'.$app_code.'">Mobile Site</a></span></div>';
+		}
+	}
+	
 }
